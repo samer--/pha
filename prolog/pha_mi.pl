@@ -1,4 +1,4 @@
-:- module(pha_mi, [glist//1, mi/3]).
+:- module(pha_mi, [mi/3]).
 
 /** <module> PHA meta-interpreter
 */
@@ -56,12 +56,4 @@ rule(X is Y,GS,GS) :- X is Y.
 rule(or(GA,GB,G2),G1,G2) :- G1=GA; G1=GB.
 rule(H,G1,G2) :- pha_user:rule(H,G1,G2).
 rv(N,V) :- pha_user:rv(N,V).
-
-%% glist(+G:goal)// is det.
-%  Translates a PHA goal into a difference list representation.
-glist(true) --> !, [].
-glist((A,B)) --> !, glist(A), glist(B).
-glist(&(A,B)) --> !, glist(A), glist(B).
-glist((A;B)) --> !, [or(GA,GB,GT)], {glist(A,GA,GT), glist(B,GB,GT)}.
-glist(H) --> [H].
 

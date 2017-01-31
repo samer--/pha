@@ -19,7 +19,8 @@ a previous goal. [cf. Monadic bind!]
 :- use_module(library(dcg_macros)).
 :- use_module(library(typedef)).
 :- use_module(library/priorityq, [pq_empty/1, pq_insert/4, pq_remove/4]).
-:- use_module(pha_mi,    [glist/3, mi/3]).
+:- use_module(pha_load,  [glist/3]).
+:- use_module(pha_mi,    [mi/3]).
 
 :- type procq       == pair(prob,pq(thread)).
 :- type explist     == llist(expentry).

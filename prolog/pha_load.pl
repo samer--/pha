@@ -1,6 +1,5 @@
-:- module(pha_load, [load/1, edit//0]).
+:- module(pha_load, [glist/3, load/1, edit//0]).
 
-:- use_module(pha_mi, [glist/3]).
 :- dynamic current_program/1.
 
 :- op(400,fx,~).
@@ -14,6 +13,14 @@
 % is a head term with a difference list of conjunctive subgoals. Disjunction
 % is represented by the special subgoal =|or(List1,List2,Tail)|=, which is
 % two difference lists sharing the same tail.
+
+%% glist(+G:goal)// is det.
+%  Translates a PHA goal into a difference list representation.
+glist(true) --> !, [].
+glist((A,B)) --> !, glist(A), glist(B).
+glist(&(A,B)) --> !, glist(A), glist(B).
+glist((A;B)) --> !, [or(GA,GB,GT)], {glist(A,GA,GT), glist(B,GB,GT)}.
+glist(H) --> [H].
 
 clause_translation(rv(Name,D),pha_user:rv(Name,Vals)) :- !, eval_dist(D,Vals).
 clause_translation(rv(Name,D):-B, (pha_user:rv(Name,Vals):-B,eval_dist(D,Vals))) :- !.
@@ -50,13 +57,15 @@ load(FileSpec) :-
 %  Edit loaded program.
 edit --> {current_program(File), edit(File), load(File)}.
 
-clause_expansion(H:-B,pha_user:rule(H,GS,GT)) :- glist(B,GS,GT).
+% intention is to switch to term_expansion based program loading eventually.
 
-check_rv(Name,Vals) :-
-   (  \+ (numbervars(Name,0,_), \+ground(Vals)) -> true
-   ;  format('WARNING: rv ~w has non-ground values - ignoring it.\n',[Name])
-   ).
+% clause_expansion(H:-B,pha_user:rule(H,GS,GT)) :- glist(B,GS,GT).
 
-user:term_expansion(\H, EXP) :- findall(X, clause_expansion(H:-true, X), EXP).
-user:term_expansion(\H:-B, EXP) :- findall(X, clause_expansion(H:-B, X), EXP).
-user:term_expansion(rv(Name,Vals),pha_user:rv(Name,Vals)) :- check_rv(Name,Vals).
+% check_rv(Name,Vals) :-
+%    (  \+ (numbervars(Name,0,_), \+ground(Vals)) -> true
+%    ;  format('WARNING: rv ~w has non-ground values - ignoring it.\n',[Name])
+%    ).
+
+% user:term_expansion(\H, EXP) :- findall(X, clause_expansion(H:-true, X), EXP).
+% user:term_expansion(\H:-B, EXP) :- findall(X, clause_expansion(H:-B, X), EXP).
+% user:term_expansion(rv(Name,Vals),pha_user:rv(Name,Vals)) :- check_rv(Name,Vals).
