@@ -1,0 +1,90 @@
+rv( area(S), [0.3:land, 0.7:water]).
+rv( linear(S), [0.2:road, 0.5:river, 0.3:shore]).
+% rv( linear(S), [0.1:road, 0.4:river, 0.5:shore]).
+
+region(I) :- area(sig(I),T).
+chain(I)  :- linear(sig(I),T).
+linear(X,T) :- linear(X):=T.
+area(X,T) :- area(X):=T.
+
+rv( joins(S,T,E), [0.05:true, 0.95:false]).
+rv( source(R), [0.5:0, 0.5:1]).
+rv( mouth(R), [0.5:0, 0.5:1]).
+rv( flows_to(R,S), [0.1:true, 0.9:false]).
+
+joins(S,T,E) :- joins(S,T,E):=true.
+
+tee(X,Y,E) :- 
+   joins(sig(X),sig(Y),E), 
+   linear(sig(X),road).
+
+tee(X,Y,E) :- 
+   joins(sig(X),sig(Y),E), 
+   linear(sig(X),river),
+   linear(sig(Y),road), 
+   source(sig(X)):=E.
+
+tee(X,Y,E) :- 
+   linear(sig(X),river), 
+   can_flow_to(sig(Y)), 
+   flows_to(sig(X),Y):=true,
+   mouth(sig(X)):=E.
+
+
+can_flow_to(S) :- linear(S,ST), (ST=river;ST=shore).
+
+rv( cross(X,Y),    [0.2:true, 0.8:false]).
+chi(X,Y) :-
+   crossable(sig(X),sig(Y)),
+   cross(sig(X),sig(Y)):=true.
+
+crossable(X,Y) :-
+   linear(X,XT),
+   linear(Y,YT),
+   crosstype(XT,YT).
+
+crosstype(road,road).
+crosstype(road,river).
+crosstype(river,road).
+crosstype(road,shore).
+crosstype(shore,road).
+
+
+rv( peters_out(X,E), [0.1:true, 0.9:false]).
+rv( roadloop(X), [0.01:true, 0.99:true]).
+
+open(X,N) :- linear(sig(X),river), source(sig(X)):=N.
+open(X,N) :- linear(sig(X),road), peters_out(sig(X),N):=true.
+
+closed(X) :- linear(sig(X),shore).
+closed(X) :- linear(sig(X),road), roadloop(sig(X)):=true.
+
+rv( beside(X,Y), [0.1:true, 0.9:false]).
+rv( containment(X,Y), [0.1:inside, 0.1:outside, 0.8:noside]).
+
+inside(X,Y) :- containment(X,Y):=inside.
+outside(X,Y) :- containment(X,Y):=outside.
+noside(X,Y) :- containment(X,Y):=noside.
+
+bounds(X,Y) :-
+   linear(sig(X),XT),
+   area(sig(Y),YT),
+   beside(sig(X),sig(Y)):=true,
+   possbeside(XT,YT).
+
+possbeside(road,land).
+possbeside(river,land).
+possbeside(shore,land).
+possbeside(shore,water).
+
+encloses(Y,X,Z) :-
+   outside(sig(X),sig(Z)),
+   inside(sig(X),sig(Y)),
+   linear(sig(X),XT),
+   area(sig(Y),YT),
+   area(sig(z),ZT),
+   possreg(YT,XT,ZT).
+
+possreg(land,road,land).
+possreg(land,shore,water).
+possreg(water,shore,land).

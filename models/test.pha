@@ -1,0 +1,55 @@
+rv(coin, [0.5:head,0.5:tail]).
+rv(coin(_), [0.5:head,0.5:tail]).
+rv(algy, [0.7:swims, 0.3:walks]).
+rv(bertram,[0.4:swims, 0.6:walks]).
+rv(cuthbert,[0.2:swims, 0.8:walks]).
+rv(more(_),[0.8:true, 0.2:false]).
+rv(obj,    [0.25:obj(red,square),0.25:obj(green,square),0.25:obj(red,circle),0.25:obj(green,circle)]).
+rv(good(N), [0.5:nothing, 0.5:just(N)]).
+rv(uniform(N), Vals) :- P is 1/N, findall(P:V, between(1,N,V), Vals).
+rv(Dist^Id, Dist) :- true.
+
+exp(N,X) :- exp(N,0,X).
+exp(N,I,0) :- flip(0.1)^exp(N,I) := true.
+exp(N,I,Y) :- flip(0.1)^exp(N,I) :=false, J is I+1, exp(N,J,X), Y is X+1.
+
+exp1(N,X) :- exp1(N,X,0,_).
+exp1(N,0) --> flip1(N,true).
+exp1(N,X) --> flip1(N,false), exp1(N,Y), {succ(Y,X)}.
+
+flip1(N,V,I,J) :- flip(0.1)^exp(N,I):=V, succ(I,J).
+
+
+winner(me) :- coin:=head.
+winner(you) :- coin:=tail.
+succ(X,Y) :- Y is X+1.
+
+winner(X,Y) :- coin:=X, X=Y.
+
+head(N) :- coin(N):=head.
+tail(N) :- coin(N):=tail.
+
+person(algy).
+person(bertram).
+person(cuthbert).
+
+swims(X) :- person(X), X:=swims.
+walks(X) :- person(X), X:=walks.
+
+bertram(swims) :- swims(bertram).
+bertram(walks) :- walks(bertram).
+algernon(swims) :- swims(algernon).
+algernon(walks) :- walks(algernon).
+
+moves(Person,swims) :- swims(Person).
+moves(Person,walks) :- walks(Person).
+
+item(N,h) :- head(N).
+item(N,t) :- tail(N).
+
+items(X) :- items(X,0).
+items([],N) :- more(N):=false.
+items([X|XS],N) :- more(N):=true, item(N,X), items(XS,s(N)).
+
+onehead([h|_]).
+onehead([t|T]) :- onehead(T).

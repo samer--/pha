@@ -1,0 +1,57 @@
+val(out(G),V,T) :- gate(G,or),  ok(G), or(G,V,T).
+val(out(G),V,T) :- gate(G,and), ok(G), and(G,V,T).
+val(out(G),V,T) :- gate(G,xor), ok(G), in(1,G,V1,T), in(2,G,V2,T), xor(V1,V2,V).
+val(out(G),V,T) :- stuck(G,V).
+val(out(G),V,T) :- u(G), produced(G,V,T).
+val(P,V,T) :- conn(Q,P), val(Q,V,T).
+
+val(in(I,adder(N)),V,T) :- input(I,N,T) := V.
+
+or(G,1,T) :- in(1,G,1,T).
+or(G,1,T) :- in(1,G,0,T), in(2,G,1,T).
+or(G,0,T) :- in(1,G,0,T), in(2,G,0,T).
+
+and(G,0,T) :- in(1,G,0,T).
+and(G,0,T) :- in(1,G,1,T), in(2,G,0,T).
+and(G,1,T) :- in(1,G,1,T), in(2,G,1,T).
+
+in(I,G,V,T) :- val(in(I,G),V,T).
+
+ok(G)      :- state(G) := ok.
+u(G)       :- state(G) := unkown.
+shorted(G) :- state(G) := shorted.
+blown(G)   :- state(G) := blown.
+stuck(G,V) :- state(G) := stuck(V).
+produced(G,V,T) :- produced(G,T) := V.
+
+rv( input(I,N,T),  [0.5:1, 0.5:0]).
+rv( state(G),      [0.999:ok, 0.0000001:unknown, 0.0004999:stuck(1), 0.0005:stuck(0)]).
+rv( produced(G,T), [0.5:1, 0.5:0]).
+
+gate(xor1(N), xor).
+gate(xor2(N), xor).
+gate(and1(N), and).
+gate(and2(N), and).
+gate(or1(N),  or).
+
+conn( in(1,adder(N)), in(1,xor1(N))).
+conn( in(1,adder(N)), in(1,and1(N))).
+conn( in(2,adder(N)), in(2,xor1(N))).
+conn( in(2,adder(N)), in(2,and1(N))).
+conn( in(3,adder(N)), in(2,xor2(N))).
+conn( in(3,adder(N)), in(1,and2(N))).
+conn( out(xor1(N)),   in(1,xor2(N))).
+conn( out(xor1(N)),   in(2,and2(N))).
+conn( out(and1(N)),   in(2,or1(N))).
+conn( out(and2(N)),   in(1,or1(N))).
+conn( out(xor2(N)),   out(1,adder(N))).
+conn( out(or1(N)),    out(2,adder(N))).
+conn( out(2,adder(N)), in(3,adder(N1))) :- succ(N,N1).
+val(in(3,adder(1)),0,T).
+
+xor(0,0,0).
+xor(0,1,1).
+xor(1,0,1).
+xor(1,1,0).
+
+succ(N,s(N)).

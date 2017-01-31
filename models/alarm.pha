@@ -1,0 +1,18 @@
+rv(fire,           [0.99:no, 0.01:yes]).
+rv(smoke(yes),     [0.9:yes, 0.1:no]).
+rv(smoke(no),      [0.99:no, 0.01:yes]).
+rv(tampering,      [0.98:no, 0.02:yes]).
+rv(alarm(yes,yes), [0.5:no, 0.5:yes]).
+rv(alarm(yes,no),  [0.99:yes, 0.01:no]).
+rv(alarm(no,yes),  [0.85:yes, 0.15:no]).
+rv(alarm(no,no),   [0.9999:no, 0.0001:yes]).
+rv(leaving(yes),   [0.88:yes, 0.12:no]).
+rv(leaving(no),    [0.001:yes, 0.999:no]).
+rv(report(yes),    [0.75:yes, 0.25:no]).
+rv(report(no),     [0.99:no,  0.01:yes]).
+
+fire(F)  :- fire:=F.
+smoke(S) :- fire(F), smoke(F):=S.
+alarm(A) :- fire(F), tampering:=T, alarm(F,T):=A.
+leaving(L) :- alarm(A), leaving(A):=L.
+report(R) :- leaving(L), report(L):=R.

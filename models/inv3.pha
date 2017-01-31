@@ -1,0 +1,17 @@
+rv(status(G), [0.95:ok, 0.03:shorted, 0.02:blown]).
+rv(input(_),  [0.5:on, 0.5:off]).
+
+ok(G) :- status(G):=ok.
+shorted(G) :- status(G):=shorted.
+blown(G) :- status(G):=blown.
+
+val(out(G),on,T)  :- ok(G), val(in(G),off,T).
+val(out(G),off,T) :- ok(G), val(in(G),on,T).
+val(out(G),V,T)   :- shorted(G), val(in(G),V,T).
+val(out(G),off,T) :- blown(G).
+val(in(G),V,T)    :- conn(G1,G), val(out(G1),V,T).
+val(in(i1),V,T)   :- input(T):=V.
+
+conn(i1,i2).
+conn(i2,i3).
+
