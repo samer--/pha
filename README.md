@@ -8,16 +8,17 @@ random variables and random world semantics, and an inference strategy based
 on a simulated prioritised multithreaded search for solutions of probabilistic
 goals.
 
-To run from the UNIX shell,
+To run a test script from the shell:,
 
-	$ swipl -s <pha>/scripts/run.pl
+	$ swipl -s <path to pha>/scripts/run.pl
 
-Alternatively, you can run the script from the SWI command line with:
+Alternatively, you can run it from the SWI command line with:
 
 	?- [pack(pha/scripts/run)].
 
 This will load the alarm.pha model and drop you immediately into the interactive stateful
 top level. The state consists of observations that have been made, and is initially empty.
+You can type ```help.``` to get a list of commands.
 To get the probability of a goal, try, eg
 
 	>> prob(fire(yes),P).
@@ -54,12 +55,12 @@ Or to get them one by one,
 There are more models in pack(pha/models). The run.pl script adds this path
 as the file search path 'pha'.
 
-### Implmentation notes
+### Implementation notes
 
 This implementation is a complete re-write of Poole's which I did in 2015, 
-completely removing the use of mutable state and failure driven processing. 
-The original used mutable state to manage a collection of prioritised 'threads' 
-(see below), whereas this one uses state threading and DCG notation to that instead. 
+removing the use of mutable state and failure driven processing in the core
+interpreter.  The original used mutable state to manage a collection of prioritised 
+'threads' (see below), whereas this one uses state threading and DCG notation to that instead. 
 It also uses lazy lists to manage the generation of explanations on demand, and uses 
 another layer of DCG state threading to keep track of a stack of observations, as 
 illustrated above.
