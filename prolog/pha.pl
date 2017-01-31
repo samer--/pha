@@ -100,7 +100,7 @@
 :- use_module(library(math), [add/3]).
 :- use_module(pha_load, [load/1, edit//0]).
 :- use_module(pha_sched, [nil_belief/1, cons_belief/3, explanation/2, prob/2]).
-:- use_module(library/frozen,[]).
+:- use_module(library/frozen,[]). % should also work using library/lazy
 
 :- type stream(A)    ---> [A|stream(A)].
 :- type interval(A)  ---> range(A,A).
